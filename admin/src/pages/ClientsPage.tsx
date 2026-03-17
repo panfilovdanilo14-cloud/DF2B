@@ -1,167 +1,76 @@
 import { useState } from 'react'
-import { Search, Eye, MessageSquare, Trash2 } from 'lucide-react'
+import { Search, User, Filter, MoreVertical, Shield, Clock } from 'lucide-react'
 
-interface Client {
-  id: string
-  name: string
-  email: string
-  type: 'military' | 'civilian' | 'children' | 'teenager' | 'elderly'
-  joinDate: string
-  lastActive: string
-  sessionsCount: number
-  status: 'active' | 'inactive'
-}
-
-export default function ClientsPage() {
-  const [clients, setClients] = useState<Client[]>([
-    {
-      id: '1',
-      name: 'Іван Петренко',
-      email: 'ivan@example.com',
-      type: 'military',
-      joinDate: '15 Січня 2026',
-      lastActive: '17 Березня 08:30',
-      sessionsCount: 24,
-      status: 'active',
-    },
-    {
-      id: '2',
-      name: 'Марія Коваленко',
-      email: 'maria@example.com',
-      type: 'civilian',
-      joinDate: '20 Січня 2026',
-      lastActive: '16 Березня 16:45',
-      sessionsCount: 18,
-      status: 'active',
-    },
-    {
-      id: '3',
-      name: 'Олег Сидоренко',
-      email: 'oleg@example.com',
-      type: 'elderly',
-      joinDate: '05 Лютого 2026',
-      lastActive: '10 Березня 14:20',
-      sessionsCount: 32,
-      status: 'inactive',
-    },
-  ])
-
+const ClientsPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
-  const [filterType, setFilterType] = useState<string>('all')
-
-  const filteredClients = clients.filter((client) => {
-    const matchesSearch =
-      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesType = filterType === 'all' || client.type === filterType
-    return matchesSearch && matchesType
-  })
-
-  const typeLabels: Record<string, string> = {
-    military: '🪖 Військовий',
-    civilian: '👤 Цивільний',
-    children: '👧 Дитина',
-    teenager: '👦 Підліток',
-    elderly: '👴 Пенсіонер',
-  }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-df2b-text mb-2">Клієнти</h1>
-        <p className="text-df2b-text-secondary">Управління користувачами системи</p>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-white font-quote">Клієнти</h1>
       </div>
 
-      {/* Filters */}
-      <div className="glass-card rounded-xl p-4 space-y-4">
-        <div className="flex gap-4 flex-col sm:flex-row">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-3 text-df2b-accent/50" size={20} />
-            <input
-              type="text"
-              placeholder="Пошук за імям або email..."
+      <div className="bg-df2b-bg-card rounded-xl border border-white/5 p-4">
+        <div className="flex gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-df2b-text-secondary" />
+            <input 
+              type="text" 
+              placeholder="Пошук клієнта..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg bg-df2b-bg-card border border-df2b-accent/20 text-df2b-text placeholder-df2b-text-muted focus:outline-none focus:border-df2b-accent"
+              className="w-full bg-black/20 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-white placeholder:text-df2b-text-secondary focus:outline-none focus:border-df2b-accent/50"
             />
           </div>
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="px-4 py-2 rounded-lg bg-df2b-bg-card border border-df2b-accent/20 text-df2b-text focus:outline-none focus:border-df2b-accent"
-          >
-            <option value="all">Всі типи</option>
-            <option value="military">Військові</option>
-            <option value="civilian">Цивільні</option>
-            <option value="children">Діти</option>
-            <option value="teenager">Підлітки</option>
-            <option value="elderly">Пенсіонери</option>
-          </select>
+          <button className="px-4 py-2 bg-black/20 border border-white/10 rounded-lg text-df2b-text-secondary hover:text-white transition-colors flex items-center gap-2">
+            <Filter className="w-4 h-4" />
+            Фільтри
+          </button>
         </div>
-      </div>
 
-      {/* Clients Table */}
-      <div className="glass-card rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-df2b-accent/10 bg-df2b-bg-secondary/50">
-                <th className="px-6 py-4 text-left text-sm font-semibold text-df2b-text">Ім'я</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-df2b-text">Email</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-df2b-text">Тип</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-df2b-text">Сеанси</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-df2b-text">Статус</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-df2b-text">Дія</th>
+              <tr className="text-left text-sm text-df2b-text-secondary border-b border-white/5">
+                <th className="pb-4 font-medium">Клієнт</th>
+                <th className="pb-4 font-medium">Рівень доступу</th>
+                <th className="pb-4 font-medium">Остання активність</th>
+                <th className="pb-4 font-medium">Статус</th>
+                <th className="pb-4 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-df2b-accent/5">
-              {filteredClients.map((client) => (
-                <tr
-                  key={client.id}
-                  className="hover:bg-df2b-bg-secondary/30 transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm text-df2b-text font-medium">
-                    {client.name}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-df2b-text-secondary">
-                    {client.email}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span className="inline-block px-3 py-1 rounded-full bg-df2b-accent/10 text-df2b-accent text-xs font-medium">
-                      {typeLabels[client.type]}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-df2b-text">
-                    {client.sessionsCount}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                        client.status === 'active'
-                          ? 'bg-green-500/20 text-green-500'
-                          : 'bg-df2b-text-muted/20 text-df2b-text-muted'
-                      }`}
-                    >
-                      {client.status === 'active' ? '● Активний' : '● Неактивний'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <button className="p-2 hover:bg-df2b-bg-card rounded-lg transition-colors text-df2b-accent/70 hover:text-df2b-accent">
-                        <Eye size={18} />
-                      </button>
-                      <button className="p-2 hover:bg-df2b-bg-card rounded-lg transition-colors text-df2b-accent/70 hover:text-df2b-accent">
-                        <MessageSquare size={18} />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setClients(clients.filter((c) => c.id !== client.id))
-                        }}
-                        className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-red-500/70 hover:text-red-500"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+            <tbody className="text-sm">
+              {[1, 2, 3, 4, 5].map((item) => (
+                <tr key={item} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-df2b-accent/20 flex items-center justify-center text-df2b-accent">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <span className="text-white font-medium">User_{3420 + item}</span>
                     </div>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-2 text-df2b-text-secondary">
+                      <Shield className="w-4 h-4 text-df2b-accent" />
+                      Standard
+                    </div>
+                  </td>
+                  <td className="py-4 text-df2b-text-secondary">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      2 години тому
+                    </div>
+                  </td>
+                  <td className="py-4">
+                    <span className="px-2 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-medium border border-green-500/20">
+                      Active
+                    </span>
+                  </td>
+                  <td className="py-4 text-right">
+                    <button className="p-2 text-df2b-text-secondary hover:text-white">
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -169,12 +78,8 @@ export default function ClientsPage() {
           </table>
         </div>
       </div>
-
-      {filteredClients.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-df2b-text-secondary">Клієнтів не знайдено</p>
-        </div>
-      )}
     </div>
   )
 }
+
+export default ClientsPage

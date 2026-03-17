@@ -1,129 +1,110 @@
 import { useState } from 'react'
-import { Lock, Mail, Loader2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Wind, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 
-interface LoginPageProps {
-  onLogin: (email: string) => void
-}
-
-export default function LoginPage({ onLogin }: LoginPageProps) {
+const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
+    setError(null)
 
     try {
-      // Simulated auth - replace with real API call
-      const response = await fetch(
-        (import.meta.env.VITE_API_URL ?? 'http://localhost:3001') + '/api/admin/login',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        }
-      ).catch(() => null)
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-      if (response?.ok) {
-        const data = await response.json()
-        localStorage.setItem('adminToken', data.token)
-        localStorage.setItem('adminEmail', email)
-        onLogin(email)
-      } else {
-        // Demo mode - if no backend, use hardcoded admin
-        if (
-          email === 'admin@df2b.com' &&
-          password === 'DF2B_Admin_123'
-        ) {
-          localStorage.setItem('adminToken', 'demo-token')
-          localStorage.setItem('adminEmail', email)
-          onLogin(email)
-        } else {
-          setError('Невірний email або пароль')
-        }
-      }
-    } catch (err) {
-      setError('Помилка при авторизації')
+      if (authError) throw authError
+      navigate('/')
+    } catch (err: any) {
+      setError(err.message || 'Error occurred during login')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-df2b-bg to-df2b-bg-secondary flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="glass-card rounded-2xl p-8 space-y-6">
-          <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-df2b-accent/20 flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-df2b-accent">DF2B</span>
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-df2b-accent/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-df2b-accent/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="w-full max-w-md relative">
+        <div className="bg-df2b-bg-card border border-white/5 rounded-2xl p-8 backdrop-blur-xl">
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-16 h-16 bg-df2b-accent/20 rounded-2xl flex items-center justify-center mb-4">
+              <Wind className="w-8 h-8 text-df2b-accent" />
             </div>
-            <h1 className="text-2xl font-bold text-df2b-text mb-2">Admin Panel</h1>
-            <p className="text-df2b-text-secondary text-sm">
-              Увійдіть як адміністратор для управління системою
-            </p>
+            <h1 className="text-2xl font-bold text-white">Вхід в Адмін-панель</h1>
+            <p className="text-df2b-text-secondary mt-2">Панель керування DF2B</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-df2b-text mb-2">
-                Email
-              </label>
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-500 text-sm">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-df2b-text-secondary">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 text-df2b-accent/50" size={20} />
-                <input
-                  type="email"
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-df2b-text-secondary" />
+                <input 
+                  type="email" 
+                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-2 rounded-lg bg-df2b-bg-card border border-df2b-accent/20 text-df2b-text placeholder-df2b-text-muted focus:outline-none focus:border-df2b-accent focus:ring-1 focus:ring-df2b-accent/50 transition-all"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder:text-df2b-text-secondary focus:outline-none focus:border-df2b-accent transition-colors"
                   placeholder="admin@df2b.com"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-df2b-text mb-2">
-                Пароль
-              </label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-df2b-text-secondary">Пароль</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 text-df2b-accent/50" size={20} />
-                <input
-                  type="password"
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-df2b-text-secondary" />
+                <input 
+                  type="password" 
+                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-2 rounded-lg bg-df2b-bg-card border border-df2b-accent/20 text-df2b-text placeholder-df2b-text-muted focus:outline-none focus:border-df2b-accent focus:ring-1 focus:ring-df2b-accent/50 transition-all"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder:text-df2b-text-secondary focus:outline-none focus:border-df2b-accent transition-colors"
                   placeholder="••••••••"
                 />
               </div>
             </div>
 
-            {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                <p className="text-sm text-red-500">{error}</p>
-              </div>
-            )}
-
-            <button
+            <button 
               type="submit"
               disabled={loading}
-              className="w-full py-2 rounded-lg bg-df2b-accent hover:bg-df2b-accent-light text-df2b-bg font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full bg-df2b-accent hover:bg-df2b-accent-light text-df2b-bg font-bold py-3 rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2"
             >
-              {loading && <Loader2 size={18} className="animate-spin" />}
-              {loading ? 'Завантаження...' : 'Увійти'}
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                'Увійти'
+              )}
             </button>
           </form>
 
-          <div className="pt-4 border-t border-df2b-accent/10">
-            <p className="text-xs text-df2b-text-muted text-center">
-              Demo: admin@df2b.com / DF2B_Admin_123
-            </p>
-          </div>
+          <p className="mt-8 text-center text-xs text-df2b-text-secondary">
+            © 2024 DF2B. Захищена територія.
+          </p>
         </div>
       </div>
     </div>
   )
 }
+
+export default LoginPage

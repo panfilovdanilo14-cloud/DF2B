@@ -1,0 +1,16 @@
+{
+  "name": "Don't Forget 2 Breathe",
+  "short_name": "DF2B",
+  "description": "Inner peace through guided breathing and sound",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/ios-filled/512/FFFFFF/wind.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
